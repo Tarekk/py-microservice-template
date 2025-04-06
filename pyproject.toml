@@ -1,0 +1,14 @@
+[project]
+name = "py-service-template"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "alembic>=1.15.2",
+    "dotenv>=0.9.9",
+    "fastapi>=0.115.12",
+    "pydantic-settings>=2.8.1",
+    "sqlmodel>=0.0.24",
+    "uvicorn>=0.34.0",
+]

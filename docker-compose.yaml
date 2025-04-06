@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  py-service-api:
+    build: .
+    ports:
+      - '8006:8000'
+    volumes:
+      - ./data:/app/data
+      - ./alembic/versions:/app/alembic/versions
+volumes:
+  sqlite-data:
