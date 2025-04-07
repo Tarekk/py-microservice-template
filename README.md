@@ -15,20 +15,32 @@ A robust template for building Python-based microservices with FastAPI, SQLite, 
 ## Project Structure
 
 ```
-├── alembic/               # Database migration files
-├── api/                   # API code
-│   ├── core/              # Core configuration and database setup
-│   ├── models/            # SQLModel database models
-│   ├── routes/            # API endpoints
-│   └── main.py            # FastAPI application entry point
+├── .env                   # Environment variables (create from .env.example)
+├── .env.example           # Example environment variables
+├── .git/                  # Git repository files
+├── .gitignore             # Git ignore file
+├── .python-version        # Python version file (if used)
 ├── data/                  # Database and persistent data
 ├── service/               # Service business logic (add your service code here)
-├── scripts/               # Utility scripts
-├── .env                   # Environment variables (create from .env.example)
-├── Dockerfile             # Docker container definition
-├── docker-compose.yaml    # Docker compose services
-├── entrypoint.sh          # Container entrypoint script
-├── pyproject.toml         # Project dependencies
+├── api/                   # API code, configuration, and dependencies
+│   ├── Dockerfile         # Docker container definition for API
+│   ├── alembic.ini        # Alembic configuration
+│   ├── docker-compose.yaml # Docker compose (if API is run standalone, adjust as needed)
+│   ├── pyproject.toml     # API project dependencies
+│   ├── scripts/           # Utility scripts specific to the API
+│   ├── src/               # API source code
+│   │   ├── alembic/       # Database migration files
+│   │   ├── core/          # Core configuration and database setup
+│   │   ├── models/        # SQLModel database models
+│   │   ├── routes/        # API endpoints
+│   │   ├── __init__.py
+│   │   ├── api.py         # API router setup
+│   │   ├── deps.py        # FastAPI dependencies
+│   │   ├── initial_data.py # Initial data seeding script
+│   │   └── main.py        # FastAPI application entry point
+│   └── uv.lock            # Lock file for API dependencies
+├── docker-compose.yaml    # Main Docker compose services (references api context)
+├── LICENSE                # Project License
 └── README.md              # This file
 ```
 
@@ -54,16 +66,20 @@ The template uses environment variables for configuration. Create a `.env` file 
    curl -LsSf https://astral.sh/uv/install.sh | sh  # On macOS/Linux
    powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"  # On Windows
    ```
-4. Initialize the database:
-   ```
+4. Initialize the database (run from the project root):
+   ```bash
+   cd api
    uv run python -m alembic upgrade head
-   uv run python -m api.initial_data
+   uv run python -m src.initial_data
+   cd ..
    ```
-5. Run the service:
+5. Run the service (run from the project root):
+   ```bash
+   cd api
+   uv run uvicorn src.main:app --reload --port 8000 # Port mapped to 8006 by docker-compose
+   cd ..
    ```
-   uv run uvicorn api.main:app --reload --port 8006
-   ```
-   This command will create the `.venv` directory in the project root if it doesn't exist and automatically install all dependencies listed in `pyproject.toml`. For more details, visit the [official uv repository](https://github.com/astral-sh/uv).
+   The `uv run` command within the `api` directory will create the `.venv` directory there if it doesn't exist and automatically install all dependencies listed in `api/pyproject.toml`. For more details, visit the [official uv repository](https://github.com/astral-sh/uv).
 
 ### Docker Deployment
 
@@ -85,13 +101,15 @@ All endpoints (except health check) require an API key to be passed via the `SER
 
 ## Adding Your Service Logic
 
-1. Add your service code to the `service/` directory
-2. Create new API routes in `api/routes/` as needed
-3. Define new models in `api/models/` as required
-4. Run migrations to update the database schema:
-   ```
-   alembic revision --autogenerate -m "Add new model"
+1. Add your service code to the `service/` directory.
+2. Create new API routes in `api/src/routes/` as needed.
+3. Define new models in `api/src/models/` as required.
+4. Run migrations to update the database schema (run from the project root):
+   ```bash
+   cd api
+   alembic revision --autogenerate -m "Your migration message"
    alembic upgrade head
+   cd ..
    ```
 
 ## Database Management

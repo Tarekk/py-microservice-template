@@ -4,9 +4,9 @@ from typing import Any
 from fastapi import APIRouter, HTTPException
 from sqlmodel import func, select
 
-from api.deps import CurrentUser, DBSessionDep
-from api.models.shared.common import Message
-from api.models.tasks import Task, TaskCreate, TaskPublic, TasksPublic, TaskUpdate
+from src.deps import CurrentUser, DBSessionDep
+from src.models.shared.common import Message
+from src.models.tasks import Task, TaskCreate, TaskPublic, TasksPublic, TaskUpdate
 
 router = APIRouter()
 
@@ -21,9 +21,13 @@ def read_tasks(
     """
     Retrieve tasks.
     """
-    count_statement = select(func.count()).select_from(Task)
+    count_statement = (
+        select(func.count()).select_from(Task).where(Task.owner_id == current_user.id)
+    )
     count = session.exec(count_statement).one()
-    statement = select(Task).offset(skip).limit(limit)
+    statement = (
+        select(Task).offset(skip).limit(limit).where(Task.owner_id == current_user.id)
+    )
     tasks = session.exec(statement).all()
 
     tasks_public = [TaskPublic.model_validate(task) for task in tasks]
@@ -40,7 +44,7 @@ def read_task(
     Get task by ID.
     """
     task = session.get(Task, id)
-    if not task:
+    if not task or task.owner_id != current_user.id:
         raise HTTPException(status_code=404, detail="Task not found")
     return TaskPublic.model_validate(task)
 
@@ -55,7 +59,7 @@ def create_task(
     """
     Create new task.
     """
-    task = Task.model_validate(task_in)
+    task = Task.model_validate(task_in, update={"owner_id": current_user.id})
     session.add(task)
     session.commit()
     session.refresh(task)
@@ -74,7 +78,7 @@ def update_task(
     Update a task.
     """
     task = session.get(Task, id)
-    if not task:
+    if not task or task.owner_id != current_user.id:
         raise HTTPException(status_code=404, detail="Task not found")
 
     update_dict = task_in.model_dump(exclude_unset=True)
@@ -95,7 +99,7 @@ def delete_task(
     Delete a task.
     """
     task = session.get(Task, id)
-    if not task:
+    if not task or task.owner_id != current_user.id:
         raise HTTPException(status_code=404, detail="Task not found")
 
     session.delete(task)

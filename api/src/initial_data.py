@@ -1,6 +1,6 @@
 from sqlmodel import Session
 
-from api.core.db import engine, init_db
+from src.core.db import engine, init_db
 
 
 def init() -> None:

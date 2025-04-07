@@ -29,7 +29,7 @@ elif [ "$DB_INIT_MODE" = "RECREATE" ]; then
     rm -f "$DB_PATH"
     touch "$DB_PATH"
     # Reset alembic by removing all versions and creating a new base
-    rm -rf /app/alembic/versions/*
+    rm -rf /app/src/alembic/versions/*
     alembic revision --autogenerate -m "Initial migration"
     alembic upgrade head
 elif [ "$DB_INIT_MODE" = "NONE" ]; then
@@ -38,7 +38,7 @@ else
     echo "Unknown DB_INIT_MODE: $DB_INIT_MODE. Valid options are: NONE, MIGRATE, RECREATE"
 fi
 
-python -m api.initial_data
+python -m src.initial_data
 
 # Execute the command passed to the entrypoint script
 echo "Starting application with command: $@"

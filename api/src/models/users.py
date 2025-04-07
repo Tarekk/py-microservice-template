@@ -1,8 +1,12 @@
-from typing import List, Optional
+from typing import List, Optional, TYPE_CHECKING
 
 from pydantic import BaseModel
+from sqlmodel import Relationship
 
-from api.models.shared.mixins import PKMixin, TimestampMixin
+from src.models.shared.mixins import PKMixin, TimestampMixin
+
+if TYPE_CHECKING:
+    from src.models.tasks import Task
 
 
 class UserBase(BaseModel):
@@ -13,6 +17,7 @@ class UserBase(BaseModel):
 
 class User(TimestampMixin, PKMixin, UserBase, table=True):
     __tablename__: str = "users"
+    tasks: List["Task"] = Relationship(back_populates="owner")
 
 
 class UserCreate(UserBase):

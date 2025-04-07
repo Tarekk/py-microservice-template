@@ -5,8 +5,8 @@ from sqlalchemy import engine_from_config, pool
 from sqlmodel import SQLModel
 
 from alembic import context
-from api.core.config import settings  # noqa
-from api.models import *
+from src.core.config import settings  # noqa
+from src.models import *
 
 # Set up basic logging
 logging.basicConfig(level=logging.DEBUG)

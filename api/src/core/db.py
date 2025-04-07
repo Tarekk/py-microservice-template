@@ -1,7 +1,7 @@
 from sqlmodel import Session, create_engine, select
 
-from api.core.config import settings
-from api.models.users import User, UserCreate
+from src.core.config import settings
+from src.models.users import User, UserCreate
 
 engine = create_engine(str(settings.SQLITE_URL))
 

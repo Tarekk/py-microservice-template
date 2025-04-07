@@ -4,8 +4,8 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import APIKeyHeader
 from sqlmodel import Session, select
 
-from api.core.db import engine
-from api.models.users import User
+from src.core.db import engine
+from src.models.users import User
 
 api_key_header = APIKeyHeader(name="SERVICE-NAME-API-KEY", auto_error=False)
 
@@ -33,8 +33,8 @@ async def verify_api_key(
             detail="Invalid API key",
         )
 
-    return api_key
+    return user
 
 
-CurrentUser = Annotated[str, Depends(verify_api_key)]
+CurrentUser = Annotated[User, Depends(verify_api_key)]
 DBSessionDep = Annotated[Session, Depends(get_session)]

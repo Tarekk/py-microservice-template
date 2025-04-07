@@ -1,10 +1,14 @@
 from enum import Enum
-from typing import List, Optional
+from typing import List, Optional, TYPE_CHECKING
+import uuid
 
 from pydantic import BaseModel
-from sqlmodel import Field
+from sqlmodel import Field, Relationship
 
-from api.models.shared.mixins import PKMixin, TimestampMixin
+from src.models.shared.mixins import PKMixin, TimestampMixin
+
+if TYPE_CHECKING:
+    from src.models.users import User
 
 
 class TaskStatus(str, Enum):
@@ -23,6 +27,10 @@ class TaskBase(BaseModel):
 
 class Task(TimestampMixin, PKMixin, TaskBase, table=True):
     __tablename__: str = "tasks"
+    owner_id: uuid.UUID = Field(
+        foreign_key="users.id", nullable=False, ondelete="CASCADE"
+    )
+    owner: "User" = Relationship(back_populates="tasks")
 
 
 class TaskCreate(TaskBase):

@@ -31,14 +31,11 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 
 ENV PYTHONPATH=/app
 
-# Copy entrypoint script and env files first to ensure they're available even with volumes
-COPY entrypoint.sh .env /app/
-
 # Copy the rest of the application
 COPY . .
 
 # Make sure entrypoint.sh is executable
-RUN chmod +x /app/entrypoint.sh
+RUN chmod +x /app/scripts/entrypoint.sh
 
 # Sync the project
 # Ref: https://docs.astral.sh/uv/guides/integration/docker/#intermediate-layers
@@ -46,7 +43,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync
 
 # Use exec form of ENTRYPOINT with bash to ensure script is executed properly
-ENTRYPOINT ["bash", "/app/entrypoint.sh"]
+ENTRYPOINT ["bash", "/app/scripts/entrypoint.sh"]
 
 # This command will be passed as arguments to the entrypoint script
-CMD ["uvicorn","--host", "0.0.0.0", "api.main:app"]
+CMD ["uvicorn","--host", "0.0.0.0", "src.main:app"]
